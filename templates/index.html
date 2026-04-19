@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Neuronet AI</title>
+
+<style>
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: "Segoe UI", sans-serif;
+}
+
+body {
+    height: 100vh;
+    background: linear-gradient(145deg, #0f172a, #1e293b);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+}
+
+.container {
+    width: 95%;
+    max-width: 900px;
+    height: 95vh;
+    display: flex;
+    flex-direction: column;
+    border-radius: 25px;
+    background: #0b1220;
+    box-shadow: 20px 20px 60px #070d18,
+                -20px -20px 60px #111a2e;
+    overflow: hidden;
+}
+
+.header {
+    padding: 20px;
+    text-align: center;
+    font-size: 28px;
+    font-weight: bold;
+    letter-spacing: 2px;
+    background: #0f172a;
+    box-shadow: inset 0 -3px 8px rgba(0,0,0,0.6);
+}
+
+#chat {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.message {
+    padding: 14px 18px;
+    border-radius: 18px;
+    margin-bottom: 12px;
+    max-width: 80%;
+    word-wrap: break-word;
+    box-shadow: 5px 5px 15px #05070d,
+                -5px -5px 15px #121a2b;
+}
+
+.user {
+    align-self: flex-end;
+    background: #2563eb;
+}
+
+.bot {
+    align-self: flex-start;
+    background: #1e293b;
+}
+
+.input-area {
+    display: flex;
+    padding: 15px;
+    background: #0f172a;
+    box-shadow: inset 0 3px 8px rgba(0,0,0,0.6);
+}
+
+input {
+    flex: 1;
+    padding: 14px;
+    border-radius: 12px;
+    border: none;
+    font-size: 16px;
+    outline: none;
+}
+
+button {
+    margin-left: 10px;
+    padding: 14px 20px;
+    border-radius: 12px;
+    border: none;
+    background: #22c55e;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+button:hover {
+    transform: translateY(-2px);
+}
+
+/* Адаптив */
+@media (max-width: 600px) {
+    .header {
+        font-size: 20px;
+    }
+    input, button {
+        font-size: 14px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+    <div class="header">Neuronet AI</div>
+
+    <div id="chat"></div>
+
+    <div class="input-area">
+        <input id="messageInput" placeholder="Напишите сообщение..." />
+        <button onclick="sendMessage()">➤</button>
+    </div>
+</div>
+
+<script>
+async function sendMessage() {
+    const input = document.getElementById("messageInput");
+    const text = input.value.trim();
+    if (!text) return;
+
+    addMessage(text, "user");
+    input.value = "";
+
+    const response = await fetch("/ask", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ message: text })
+    });
+
+    const data = await response.json();
+    addMessage(data.answer, "bot");
+}
+
+function addMessage(text, type) {
+    const chat = document.getElementById("chat");
+    const msg = document.createElement("div");
+    msg.className = "message " + type;
+    msg.innerText = text;
+    chat.appendChild(msg);
+    chat.scrollTop = chat.scrollHeight;
+}
+</script>
+
+</body>
+</html>
