@@ -1,2 +1,4 @@
-pyTelegramBotAPI==4.15.4
-requests
+fastapi
+uvicorn
+groq
+python-dotenv
