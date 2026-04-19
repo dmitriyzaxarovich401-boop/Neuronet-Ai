@@ -4,8 +4,8 @@ import requests
 
 print("Starting bot...")
 
-TG_TOKEN = os.getenv("TG_TOKEN")
-GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+TG_TOKEN = os.getenv("8740783234:AAGv_ma7OIVd5gLUYKSxndYKPO4aiIspWgQ")
+GROQ_API_KEY = os.getenv("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")
 
 if not TG_TOKEN:
     raise RuntimeError("TG_TOKEN missing")
