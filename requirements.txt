@@ -3,3 +3,8 @@ uvicorn
 groq
 python-dotenv
 jinja2
+pyTelegramBotAPI
+requests
+gTTS
+opencv-python
+Pillow
