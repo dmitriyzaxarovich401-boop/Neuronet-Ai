@@ -1,4 +1,6 @@
+fastapi
+uvicorn
 pyTelegramBotAPI
 requests
-groq
-python-dotenv
+opencv-python-headless
+Pillow
