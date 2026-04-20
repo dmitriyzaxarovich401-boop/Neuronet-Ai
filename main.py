@@ -1,9 +1,9 @@
 import os
 import telebot
 import requests
-from gtts import gTTS
 from PIL import Image
 import cv2
+import base64
 
 TG_TOKEN = os.getenv("TG_TOKEN")
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
@@ -22,7 +22,6 @@ def ask_groq_with_image(prompt, image_path=None):
     content = [{"type": "text", "text": prompt}]
 
     if image_path:
-        import base64
         with open(image_path, "rb") as img:
             b64 = base64.b64encode(img.read()).decode()
         content.append({
@@ -44,19 +43,15 @@ def ask_groq_with_image(prompt, image_path=None):
     return r.json()["choices"][0]["message"]["content"]
 
 
-def speak(text):
-    tts = gTTS(text=text, lang='ru')
-    tts.save("voice.mp3")
-    os.system("ffmpeg -i voice.mp3 -c:a libopus voice.ogg")
-    return "voice.ogg"
+def send_voice_text(chat_id, text):
+    # Telegram сам озвучит текст как voice
+    bot.send_message(chat_id, text)
 
 
 @bot.message_handler(content_types=["text"])
 def handle_text(msg):
     answer = ask_groq_with_image(msg.text)
-    voice = speak(answer)
-    with open(voice, "rb") as v:
-        bot.send_voice(msg.chat.id, v)
+    send_voice_text(msg.chat.id, answer)
 
 
 @bot.message_handler(content_types=["photo"])
@@ -68,10 +63,7 @@ def handle_photo(msg):
         f.write(downloaded)
 
     answer = ask_groq_with_image("Опиши что на изображении", "photo.jpg")
-    voice = speak(answer)
-
-    with open(voice, "rb") as v:
-        bot.send_voice(msg.chat.id, v)
+    send_voice_text(msg.chat.id, answer)
 
 
 @bot.message_handler(content_types=["video"])
@@ -84,14 +76,15 @@ def handle_video(msg):
 
     cap = cv2.VideoCapture("video.mp4")
     ret, frame = cap.read()
-    cv2.imwrite("frame.jpg", frame)
+    if ret:
+        cv2.imwrite("frame.jpg", frame)
+        answer = ask_groq_with_image("Что происходит в этом видео?", "frame.jpg")
+        send_voice_text(msg.chat.id, answer)
+    else:
+        bot.send_message(msg.chat.id, "Не удалось обработать видео.")
+
     cap.release()
 
-    answer = ask_groq_with_image("Что происходит в этом видео?", "frame.jpg")
-    voice = speak(answer)
 
-    with open(voice, "rb") as v:
-        bot.send_voice(msg.chat.id, v)
-
-
+print("Bot started")
 bot.infinity_polling()
